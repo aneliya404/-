@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>БУБА — Kuroko no Basket Fan Community</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Oswald', 'sans-serif'],
+          },
+          colors: {
+            court: {
+              bg: '#090D16',
+              surface: '#111827',
+              elevated: '#182235',
+              border: '#23304A',
+              cyan: '#38BDF8',
+              cyanHover: '#0EA5E9',
+              orange: '#F97316',
+              text: '#F8FAFC',
+              muted: '#94A3B8'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-court-bg text-court-text font-sans antialiased selection:bg-court-cyan selection:text-court-bg overflow-x-hidden">
+
+  <!-- Уведомления (Toast) -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Навигация -->
+  <header class="sticky top-0 z-40 bg-court-bg/90 backdrop-blur-md border-b border-court-border">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <!-- Логотип -->
+      <a href="#top" class="flex items-center gap-3 group focus:outline-none">
+        <div class="w-9 h-9 rounded-lg bg-court-elevated border border-court-cyan/40 flex items-center justify-center transition-colors group-hover:border-court-cyan">
+          <svg class="w-5 h-5 text-court-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M5.6 5.6c3.5 3.5 3.5 9.3 0 12.8" />
+            <path d="M18.4 5.6c-3.5 3.5-3.5 9.3 0 12.8" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+          </svg>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-display text-xl tracking-wider uppercase leading-none text-white">БУБА</span>
+          <span class="text-[10px] uppercase tracking-[0.2em] text-court-cyan font-semibold mt-0.5" data-i18n="brandSub">Kuroko Fan Club</span>
+        </div>
+      </a>
+
+      <!-- Десктопное меню -->
+      <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-court-muted">
+        <a href="#anime-section" class="hover:text-white transition-colors" data-i18n="navAnime">Похожие аниме</a>
+        <a href="#discussions-section" class="hover:text-white transition-colors" data-i18n="navDiscuss">Обсуждения</a>
+        <button id="watchlist-nav-btn" type="button" class="flex items-center gap-2 hover:text-white transition-colors">
+          <span data-i18n="navWatchlist">Мой список</span>
+          <span id="watchlist-count" class="px-2 py-0.5 text-xs font-semibold rounded-full bg-court-elevated text-court-cyan border border-court-border">0</span>
+        </button>
+      </nav>
+
+      <!-- Переключатель языка и мобильная кнопка -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div class="inline-flex rounded-lg bg-court-surface p-1 border border-court-border" role="group" aria-label="Language switcher">
+          <button type="button" data-lang="ru" class="lang-btn px-2.5 py-1 text-xs font-semibold rounded-md transition-colors bg-court-cyan text-court-bg">RU</button>
+          <button type="button" data-lang="en" class="lang-btn px-2.5 py-1 text-xs font-semibold rounded-md transition-colors text-court-muted hover:text-white">EN</button>
+        </div>
+
+        <button id="mobile-menu-btn" type="button" class="md:hidden p-2.5 rounded-lg bg-court-surface border border-court-border text-court-muted hover:text-white" aria-label="Menu">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Мобильное меню -->
+    <div id="mobile-menu" class="hidden md:hidden border-t border-court-border bg-court-surface px-4 py-4 space-y-2">
+      <a href="#anime-section" class="mobile-link block py-2.5 px-3 rounded-lg text-sm font-medium text-court-text hover:bg-court-elevated" data-i18n="navAnime">Похожие аниме</a>
+      <a href="#discussions-section" class="mobile-link block py-2.5 px-3 rounded-lg text-sm font-medium text-court-text hover:bg-court-elevated" data-i18n="navDiscuss">Обсуждения</a>
+      <button id="mobile-watchlist-btn" type="button" class="w-full text-left py-2.5 px-3 rounded-lg text-sm font-medium text-court-text hover:bg-court-elevated flex items-center justify-between">
+        <span data-i18n="navWatchlist">Мой список</span>
+        <span id="mobile-watchlist-count" class="px-2 py-0.5 text-xs font-semibold rounded-full bg-court-bg text-court-cyan border border-court-border">0</span>
+      </button>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- Первый экран (Hero) -->
+    <section class="relative border-b border-court-border overflow-hidden">
+      <!-- Декоративная разметка баскетбольной площадки (SVG) -->
+      <svg class="absolute right-0 top-1/2 -translate-y-1/2 w-[540px] h-[540px] text-court-cyan/[0.04] pointer-events-none" viewBox="0 0 400 400" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="320" cy="200" r="180" />
+        <circle cx="320" cy="200" r="60" />
+        <line x1="140" y1="0" x2="140" y2="400" />
+      </svg>
+
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-14 sm:py-20 lg:py-24 relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+          <div class="lg:col-span-7 space-y-6">
+            <div class="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-court-surface border border-court-border text-xs font-medium text-court-cyan">
+              <span class="w-2 h-2 rounded-full bg-court-orange"></span>
+              <span data-i18n="heroBadge">SEIRIN HIGH • ПОКОЛЕНИЕ ЧУДЕС</span>
+            </div>
+
+            <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl font-bold uppercase tracking-tight leading-[1.08] text-white" data-i18n="heroTitle">
+              Тень и свет на площадке «Буба»
+            </h1>
+
+            <p class="text-base sm:text-lg text-court-muted max-w-2xl leading-relaxed" data-i18n="heroDesc">
+              Фан-пространство для тех, кто помнит каждый пас Куроко и данк Кагами. Открывайте сильные спортивные тайтлы на замену, сохраняйте подборку на вечер и делитесь мнением о любимых матчах.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
+              <a href="#discussions-section" class="inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-court-cyan text-court-bg font-semibold text-sm hover:bg-court-cyanHover transition-colors">
+                <span data-i18n="heroCtaPrimary">Написать своё мнение</span>
+              </a>
+              <a href="#anime-section" class="inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-court-surface border border-court-border text-white font-semibold text-sm hover:border-court-cyan/60 transition-colors">
+                <span data-i18n="heroCtaSecondary">Что посмотреть ещё</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Карточка-досье матча -->
+          <div class="lg:col-span-5">
+            <div class="rounded-2xl bg-court-surface border border-court-border p-6 sm:p-7 space-y-6">
+              <div class="flex items-center justify-between border-b border-court-border pb-4">
+                <div>
+                  <p class="text-xs uppercase tracking-wider text-court-muted" data-i18n="cardMatchLabel">Архив клуба</p>
+                  <h2 class="font-display text-xl uppercase text-white mt-0.5" data-i18n="cardMatchTitle">Seirin vs Rakuzan</h2>
+                </div>
+                <span class="px-3 py-1 rounded-lg bg-court-elevated border border-court-border font-display text-sm text-court-orange">106 : 105</span>
+              </div>
+
+              <blockquote class="text-sm sm:text-base text-slate-200 leading-relaxed italic border-l-2 border-court-cyan pl-4" data-i18n="heroQuote">
+                «Каким бы сильным ни был один игрок, в одиночку победить невозможно. Я — тень, но чем ярче свет, тем гуще становится тень».
+              </blockquote>
+
+              <div class="grid grid-cols-3 gap-3 pt-1">
+                <div class="p-3 rounded-xl bg-court-bg border border-court-border text-center">
+                  <div class="font-display text-xl sm:text-2xl text-white" id="stat-anime-count">8</div>
+                  <div class="text-[11px] text-court-muted mt-0.5" data-i18n="statAnime">Тайтлов в базе</div>
+                </div>
+                <div class="p-3 rounded-xl bg-court-bg border border-court-border text-center">
+                  <div class="font-display text-xl sm:text-2xl text-court-cyan" id="stat-posts-count">3</div>
+                  <div class="text-[11px] text-court-muted mt-0.5" data-i18n="statPosts">Мнений фанатов</div>
+                </div>
+                <div class="p-3 rounded-xl bg-court-bg border border-court-border text-center">
+                  <div class="font-display text-xl sm:text-2xl text-court-orange" id="stat-saved-count">0</div>
+                  <div class="text-[11px] text-court-muted mt-0.5" data-i18n="statSaved">В вашем списке</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Раздел 1: Предложение других аниме -->
+    <section id="anime-section" class="py-16 sm:py-20 border-b border-court-border">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div class="space-y-2">
+            <span class="text-xs font-semibold uppercase tracking-widest text-court-cyan" data-i18n="animeEyebrow">Рекомендации сообщества</span>
+            <h2 class="font-display text-3xl sm:text-4xl uppercase text-white" data-i18n="animeTitle">Что посмотреть после «Баскетбола Куроко»</h2>
+            <p class="text-sm sm:text-base text-court-muted max-w-2xl" data-i18n="animeSubtitle">
+              Отобранные сериалы с таким же накалом матчей, командной химией и уникальными способностями героев.
+            </p>
+          </div>
+
+          <button id="toggle-suggest-modal" type="button" class="self-start md:self-auto px-4 py-3 rounded-xl bg-court-elevated border border-court-border hover:border-court-cyan text-sm font-medium text-white transition-colors">
+            + <span data-i18n="btnSuggestAnime">Предложить своё аниме</span>
+          </button>
+        </div>
+
+        <!-- Панель фильтров и поиска -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-court-surface p-4 rounded-2xl border border-court-border">
+          <div class="flex flex-wrap gap-2" id="genre-filters">
+            <button type="button" data-filter="all" class="filter-btn px-3.5 py-2 rounded-lg text-xs font-semibold bg-court-cyan text-court-bg transition-colors" data-i18n="filterAll">Все тайтлы</button>
+            <button type="button" data-filter="basketball" class="filter-btn px-3.5 py-2 rounded-lg text-xs font-semibold bg-court-bg text-court-muted hover:text-white border border-court-border transition-colors" data-i18n="filterBasketball">Баскетбол</button>
+            <button type="button" data-filter="team" class="filter-btn px-3.5 py-2 rounded-lg text-xs font-semibold bg-court-bg text-court-muted hover:text-white border border-court-border transition-colors" data-i18n="filterTeam">Командный дух</button>
+            <button type="button" data-filter="tactics" class="filter-btn px-3.5 py-2 rounded-lg text-xs font-semibold bg-court-bg text-court-muted hover:text-white border border-court-border transition-colors" data-i18n="filterTactics">Тактика и драйв</button>
+            <button type="button" data-filter="saved" class="filter-btn px-3.5 py-2 rounded-lg text-xs font-semibold bg-court-bg text-court-muted hover:text-white border border-court-border transition-colors" data-i18n="filterSaved">Мой список</button>
+          </div>
+
+          <div class="relative w-full sm:w-64">
+            <input id="anime-search" type="text" class="w-full bg-court-bg border border-court-border rounded-xl pl-9 pr-4 py-2 text-sm text-white placeholder-court-muted focus:outline-none focus:border-court-cyan" placeholder="Поиск по названию..." />
+            <svg class="w-4 h-4 text-court-muted absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Сетка аниме -->
+        <div id="anime-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+        <!-- Пустое состояние для аниме -->
+        <div id="anime-empty" class="hidden rounded-2xl bg-court-surface border border-court-border p-10 text-center space-y-3">
+          <p class="text-base font-medium text-white" data-i18n="animeEmptyTitle">По этому фильтру пока ничего не найдено</p>
+          <p class="text-sm text-court-muted" data-i18n="animeEmptyDesc">Попробуйте сбросить поиск или добавьте тайтл в свой список.</p>
+          <button id="reset-anime-filters" type="button" class="mt-2 px-4 py-2 rounded-xl bg-court-elevated border border-court-border text-xs font-semibold text-court-cyan hover:border-court-cyan" data-i18n="btnResetFilters">Сбросить фильтры</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Раздел 2: Обсуждение и мнения фанатов -->
+    <section id="discussions-section" class="py-16 sm:py-20">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6">
+        <div class="space-y-2 mb-10">
+          <span class="text-xs font-semibold uppercase tracking-widest text-court-orange" data-i18n="discussEyebrow">Трибуна «Буба»</span>
+          <h2 class="font-display text-3xl sm:text-4xl uppercase text-white" data-i18n="discussTitle">Обсуждение матчей, персонажей и рекомендаций</h2>
+          <p class="text-sm sm:text-base text-court-muted max-w-2xl" data-i18n="discussSubtitle">
+            Поделитесь своим мнением о «Поколении Чудес», оставьте отзыв на просмотренное аниме или поспорьте, кто сильнее в «Зоне». Все записи сохраняются в вашем браузере.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <!-- Форма публикации мнения -->
+          <div class="lg:col-span-5 bg-court-surface border border-court-border rounded-2xl p-6 space-y-5 lg:sticky lg:top-24">
+            <h3 class="font-display text-xl uppercase text-white" data-i18n="formHeading">Высказать своё мнение</h3>
+
+            <form id="opinion-form" class="space-y-4" novalidate>
+              <div>
+                <label for="author-name" class="block text-xs font-medium text-court-muted mb-1.5" data-i18n="labelAuthor">Ваш никнейм</label>
+                <input id="author-name" type="text" maxlength="32" class="w-full bg-court-bg border border-court-border rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-court-muted focus:outline-none focus:border-court-cyan" placeholder="Например: Tetsuya_11" />
+              </div>
+
+              <div>
+                <label for="topic-select" class="block text-xs font-medium text-court-muted mb-1.5" data-i18n="labelTopic">Тема обсуждения</label>
+                <select id="topic-select" class="w-full bg-court-bg border border-court-border rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-court-cyan">
+                  <option value="Kuroko no Basket" data-i18n="topicKnb">Kuroko no Basket — сюжет и матчи</option>
+                  <option value="Generation of Miracles" data-i18n="topicGom">Поколение Чудес и Зона</option>
+                  <option value="Anime Recommendation" data-i18n="topicRec">Отзыв на другое аниме</option>
+                  <option value="Off-topic" data-i18n="topicGeneral">Свободная тема клуба</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="opinion-text" class="block text-xs font-medium text-court-muted mb-1.5" data-i18n="labelOpinion">Ваше мнение</label>
+                <textarea id="opinion-text" rows="4" maxlength="600" class="w-full bg-court-bg border border-court-border rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-court-muted focus:outline-none focus:border-court-cyan resize-y" placeholder="Напишите, какой момент или тайтл впечатлил вас больше всего..."></textarea>
+                <div class="flex justify-between items-center mt-1.5 text-[11px] text-court-muted">
+                  <span id="form-error" class="text-court-orange font-medium"></span>
+                  <span id="char-counter">0 / 600</span>
+                </div>
+              </div>
+
+              <button type="submit" class="w-full py-3 px-5 rounded-xl bg-court-cyan text-court-bg font-semibold text-sm hover:bg-court-cyanHover transition-colors" data-i18n="btnPublish">
+                Опубликовать мнение
+              </button>
+            </form>
+          </div>
+
+          <!-- Лента обсуждений -->
+          <div class="lg:col-span-7 space-y-4">
+            <!-- Фильтр тем -->
+            <div class="flex flex-wrap items-center justify-between gap-3 bg-court-surface border border-court-border rounded-2xl p-3.5">
+              <div class="flex flex-wrap gap-2" id="topic-filters">
+                <button type="button" data-topic="all" class="topic-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-court-cyan text-court-bg" data-i18n="topicAll">Все темы</button>
+                <button type="button" data-topic="Kuroko no Basket" class="topic-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-court-bg text-court-muted hover:text-white border border-court-border">Kuroko no Basket</button>
+                <button type="button" data-topic="Generation of Miracles" class="topic-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-court-bg text-court-muted hover:text-white border border-court-border" data-i18n="topicShortGom">Поколение Чудес</button>
+                <button type="button" data-topic="Anime Recommendation" class="topic-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-court-bg text-court-muted hover:text-white border border-court-border" data-i18n="topicShortRec">Другие аниме</button>
+              </div>
+            </div>
+
+            <div id="discussions-list" class="space-y-4"></div>
+
+            <!-- Пустое состояние обсуждений -->
+            <div id="discussions-empty" class="hidden rounded-2xl bg-court-surface border border-court-border p-10 text-center space-y-2">
+              <p class="text-base font-medium text-white" data-i18n="discussEmptyTitle">В этой категории пока нет сообщений</p>
+              <p class="text-sm text-court-muted" data-i18n="discussEmptyDesc">Станьте первым, кто начнёт обсуждение!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Футер -->
+  <footer class="border-t border-court-border bg-court-surface py-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-court-muted">
+      <div class="flex items-center gap-2.5">
+        <span class="font-display text-base uppercase text-white">БУБА</span>
+        <span>•</span>
+        <span data-i18n="footerTagline">Фан-сообщество Kuroko no Basket & Sports Anime</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <button id="reset-demo-btn" type="button" class="hover:text-court-cyan transition-colors underline underline-offset-4" data-i18n="btnResetDemo">
+          Сбросить демо-данные
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Модальное окно: Подробнее об аниме -->
+  <div id="anime-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-sm" role="dialog" aria-modal="true">
+    <div class="bg-court-surface border border-court-border rounded-2xl max-w-lg w-full p-6 sm:p-7 space-y-5 relative shadow-2xl">
+      <button id="close-anime-modal" type="button" class="absolute top-4 right-4 p-2 rounded-lg text-court-muted hover:text-white hover:bg-court-elevated" aria-label="Close">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <div id="anime-modal-content" class="space-y-4"></div>
+    </div>
+  </div>
+
+  <!-- Модальное окно: Предложить своё аниме -->
+  <div id="suggest-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-sm" role="dialog" aria-modal="true">
+    <div class="bg-court-surface border border-court-border rounded-2xl max-w-md w-full p-6 space-y-5 relative shadow-2xl">
+      <div class="flex items-center justify-between">
+        <h3 class="font-display text-xl uppercase text-white" data-i18n="suggestModalTitle">Добавить аниме в подборку</h3>
+        <button id="close-suggest-modal" type="button" class="p-2 rounded-lg text-court-muted hover:text-white hover:bg-court-elevated" aria-label="Close">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="suggest-form" class="space-y-4" novalidate>
+        <div>
+          <label for="suggest-title" class="block text-xs font-medium text-court-muted mb-1" data-i18n="labelSuggestTitle">Название аниме</label>
+          <input id="suggest-title" type="text" maxlength="60" class="w-full bg-court-bg border border-court-border rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-court-cyan" placeholder="Например: Ao Ashi" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="suggest-year" class="block text-xs font-medium text-court-muted mb-1" data-i18n="labelSuggestYear">Год выхода</label>
+            <input id="suggest-year" type="number" min="1980" max="2030" value="2022" class="w-full bg-court-bg border border-court-border rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-court-cyan" />
+          </div>
+          <div>
+            <label for="suggest-category" class="block text-xs font-medium text-court-muted mb-1" data-i18n="labelSuggestCat">Категория</label>
+            <select id="suggest-category" class="w-full bg-court-bg border border-court-border rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-court-cyan">
+              <option value="basketball" data-i18n="filterBasketball">Баскетбол</option>
+              <option value="team" data-i18n="filterTeam">Командный дух</option>
+              <option value="tactics" data-i18n="filterTactics">Тактика и драйв</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label for="suggest-why" class="block text-xs font-medium text-court-muted mb-1" data-i18n="labelSuggestWhy">Почему понравится фанатам Куроко?</label>
+          <textarea id="suggest-why" rows="3" maxlength="280" class="w-full bg-court-bg border border-court-border rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-court-cyan" placeholder="Кратко опишите атмосферу и сходство..."></textarea>
+        </div>
+
+        <p id="suggest-error" class="text-xs text-court-orange font-medium"></p>
+
+        <button type="submit" class="w-full py-3 rounded-xl bg-court-cyan text-court-bg font-semibold text-sm hover:bg-court-cyanHover transition-colors" data-i18n="btnAddAnime">
+          Добавить в каталог
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Словарь переводов (RU / EN)
+    const I18N = {
+      ru: {
+        brandSub: 'Kuroko Fan Club',
+        navAnime: 'Похожие аниме',
+        navDiscuss: 'Обсуждения',
+        navWatchlist: 'Мой список',
+        heroBadge: 'SEIRIN HIGH • ПОКОЛЕНИЕ ЧУДЕС',
+        heroTitle: 'Тень и свет на площадке «Буба»',
+        heroDesc: 'Фан-пространство для тех, кто помнит каждый пас Куроко и данк Кагами. Открывайте сильные спортивные тайтлы на замену, сохраняйте подборку на вечер и делитесь мнением о любимых матчах.',
+        heroCtaPrimary: 'Написать своё мнение',
+        heroCtaSecondary: 'Что посмотреть ещё',
+        cardMatchLabel: 'Архив клуба',
+        cardMatchTitle: 'Seirin vs Rakuzan',
+        heroQuote: '«Каким бы сильным ни был один игрок, в одиночку победить невозможно. Я — тень, но чем ярче свет, тем гуще становится тень».',
+        statAnime: 'Тайтлов в базе',
+        statPosts: 'Мнений фанатов',
+        statSaved: 'В вашем списке',
+        animeEyebrow: 'Рекомендации сообщества',
+        animeTitle: 'Что посмотреть после «Баскетбола Куроко»',
+        animeSubtitle: 'Отобранные сериалы с таким же накалом матчей, командной химией и уникальными способностями героев.',
+        btnSuggestAnime: 'Предложить своё аниме',
+        filterAll: 'Все тайтлы',
+        filterBasketball: 'Баскетбол',
+        filterTeam: 'Командный дух',
+        filterTactics: 'Тактика и драйв',
+        filterSaved: 'Мой список',
+        searchPlaceholder: 'Поиск по названию...',
+        animeEmptyTitle: 'По этому фильтру пока ничего не найдено',
+        animeEmptyDesc: 'Попробуйте сбросить поиск или добавьте тайтл в свой список.',
+        btnResetFilters: 'Сбросить фильтры',
+        discussEyebrow: 'Трибуна «Буба»',
+        discussTitle: 'Обсуждение матчей, персонажей и рекомендаций',
+        discussSubtitle: 'Поделитесь своим мнением о «Поколении Чудес», оставьте отзыв на просмотренное аниме или поспорьте, кто сильнее в «Зоне». Все записи сохраняются в вашем браузере.',
+        formHeading: 'Высказать своё мнение',
+        labelAuthor: 'Ваш никнейм',
+        authorPlaceholder: 'Например: Tetsuya_11',
+        labelTopic: 'Тема обсуждения',
+        topicKnb: 'Kuroko no Basket — сюжет и матчи',
+        topicGom: 'Поколение Чудес и Зона',
+        topicRec: 'Отзыв на другое аниме',
+        topicGeneral: 'Свободная тема клуба',
+        labelOpinion: 'Ваше мнение',
+        opinionPlaceholder: 'Напишите, какой момент или тайтл впечатлил вас больше всего...',
+        btnPublish: 'Опубликовать мнение',
+        topicAll: 'Все темы',
+        topicShortGom: 'Поколение Чудес',
+        topicShortRec: 'Другие аниме',
+        discussEmptyTitle: 'В этой категории пока нет сообщений',
+        discussEmptyDesc: 'Станьте первым, кто начнёт обсуждение!',
+        footerTagline: 'Фан-сообщество Kuroko no Basket & Sports Anime',
+        btnResetDemo: 'Сбросить демо-данные',
+        suggestModalTitle: 'Добавить аниме в подборку',
+        labelSuggestTitle: 'Название аниме',
+        labelSuggestYear: 'Год выхода',
+        labelSuggestCat: 'Категория',
+        labelSuggestWhy: 'Почему понравится фанатам Куроко?',
+        btnAddAnime: 'Добавить в каталог',
+        btnDetails: 'Подробнее',
+        btnSave: 'В список',
+        btnSaved: 'В списке',
+        btnReply: 'Ответить',
+        replyPlaceholder: 'Написать ответ...',
+        btnSendReply: 'Отправить',
+        errEmptyOpinion: 'Пожалуйста, напишите текст вашего мнения (минимум 5 символов).',
+        errEmptySuggest: 'Заполните название и описание рекомендации.',
+        toastSaved: 'Добавлено в «Мой список»',
+        toastRemoved: 'Удалено из «Моего списка»',
+        toastPosted: 'Ваше мнение опубликовано!',
+        toastAnimeAdded: 'Аниме добавлено в каталог «Буба»!',
+        toastReset: 'Демо-данные восстановлены',
+        modalEpisodes: 'Серий / Формат',
+        modalMatchScore: 'Сходство с KnB',
+        modalWhyTitle: 'Почему стоит смотреть фанатам Куроко',
+        modalDiscussBtn: 'Обсудить этот тайтл'
+      },
+      en: {
+        brandSub: 'Kuroko Fan Club',
+        navAnime: 'Similar Anime',
+        navDiscuss: 'Discussions',
+        navWatchlist: 'My Watchlist',
+        heroBadge: 'SEIRIN HIGH • GENERATION OF MIRACLES',
+        heroTitle: 'Shadow & Light on the Buba Court',
+        heroDesc: 'A fan hub built for everyone who remembers every Kuroko misdirection pass and Kagami meteor jam. Discover high-stakes sports anime, save your watchlist, and share your takes.',
+        heroCtaPrimary: 'Share Your Opinion',
+        heroCtaSecondary: 'Explore More Anime',
+        cardMatchLabel: 'Club Archive',
+        cardMatchTitle: 'Seirin vs Rakuzan',
+        heroQuote: '“No matter how strong a single player is, you can’t win alone. I am a shadow, and the brighter the light, the darker the shadow becomes.”',
+        statAnime: 'Anime Titles',
+        statPosts: 'Fan Opinions',
+        statSaved: 'In Watchlist',
+        animeEyebrow: 'Community Picks',
+        animeTitle: 'What to Watch After Kuroko no Basket',
+        animeSubtitle: 'Curated series featuring intense matches, team chemistry, and signature player abilities.',
+        btnSuggestAnime: 'Suggest an Anime',
+        filterAll: 'All Titles',
+        filterBasketball: 'Basketball',
+        filterTeam: 'Team Spirit',
+        filterTactics: 'Tactics & Hype',
+        filterSaved: 'My Watchlist',
+        searchPlaceholder: 'Search by title...',
+        animeEmptyTitle: 'No titles match this filter yet',
+        animeEmptyDesc: 'Try resetting your search or adding titles to your watchlist.',
+        btnResetFilters: 'Reset Filters',
+        discussEyebrow: 'Buba Stands',
+        discussTitle: 'Discuss Matches, Players & Recommendations',
+        discussSubtitle: 'Drop your thoughts on the Generation of Miracles, review another sports anime, or debate who dominates in the Zone. Saved locally in your browser.',
+        formHeading: 'Post Your Opinion',
+        labelAuthor: 'Your Nickname',
+        authorPlaceholder: 'e.g. Tetsuya_11',
+        labelTopic: 'Discussion Topic',
+        topicKnb: 'Kuroko no Basket — Plot & Matches',
+        topicGom: 'Generation of Miracles & The Zone',
+        topicRec: 'Review of Another Anime',
+        topicGeneral: 'General Club Talk',
+        labelOpinion: 'Your Opinion',
+        opinionPlaceholder: 'Write which match, character, or anime impressed you most...',
+        btnPublish: 'Publish Opinion',
+        topicAll: 'All Topics',
+        topicShortGom: 'Generation of Miracles',
+        topicShortRec: 'Other Anime',
+        discussEmptyTitle: 'No opinions in this topic yet',
+        discussEmptyDesc: 'Be the first fan to start the conversation!',
+        footerTagline: 'Kuroko no Basket & Sports Anime Fan Hub',
+        btnResetDemo: 'Reset Demo Data',
+        suggestModalTitle: 'Add Anime to Collection',
+        labelSuggestTitle: 'Anime Title',
+        labelSuggestYear: 'Release Year',
+        labelSuggestCat: 'Category',
+        labelSuggestWhy: 'Why will Kuroko fans love it?',
+        btnAddAnime: 'Add to Catalog',
+        btnDetails: 'Details',
+        btnSave: 'Watchlist',
+        btnSaved: 'Saved',
+        btnReply: 'Reply',
+        replyPlaceholder: 'Write a reply...',
+        btnSendReply: 'Send',
+        errEmptyOpinion: 'Please write your opinion (at least 5 characters).',
+        errEmptySuggest: 'Please fill in both the title and recommendation note.',
+        toastSaved: 'Added to My Watchlist',
+        toastRemoved: 'Removed from My Watchlist',
+        toastPosted: 'Your opinion has been published!',
+        toastAnimeAdded: 'Anime added to Buba catalog!',
+        toastReset: 'Demo data restored',
+        modalEpisodes: 'Episodes / Format',
+        modalMatchScore: 'KnB Vibe Match',
+        modalWhyTitle: 'Why Kuroko Fans Should Watch',
+        modalDiscussBtn: 'Discuss This Anime'
+      }
+    };
+
+    // Базовый каталог рекомендованных аниме
+    const DEFAULT_ANIME = [
+      {
+        id: 'haikyuu',
+        title: 'Haikyuu!! (Волейбол!!)',
+        year: 2014,
+        episodes: '85 эп. + фильмы',
+        category: 'team',
+        match: '98%',
+        accent: '#F97316',
+        descRu: 'Дуэт распасовщика Кагэямы и прыгучего Хинаты зеркалит связку Куроко и Кагами. Невероятная динамика матчей, раскрытие соперников и чистый командный адреналин.',
+        descEn: 'The setter-spiker duo of Kageyama and Hinata mirrors Kuroko and Kagami. Incredible match pacing, memorable rival teams, and pure team adrenaline.'
+      },
+      {
+        id: 'slamdunk',
+        title: 'Slam Dunk (Слэм-данк)',
+        year: 1993,
+        episodes: '101 эп. + The First Slam Dunk',
+        category: 'basketball',
+        match: '95%',
+        accent: '#EF4444',
+        descRu: 'Культовая баскетбольная классика, без которой не появился бы «Баскетбол Куроко». Ханамити Сакураги начинает с нуля и влюбляется в игру через пот и упорство.',
+        descEn: 'The legendary basketball classic that paved the way for Kuroko no Basket. Hanamichi Sakuragi starts from zero and falls in love with the game.'
+      },
+      {
+        id: 'bluelock',
+        title: 'Blue Lock (Синяя тюрьма)',
+        year: 2022,
+        episodes: '38 эп.',
+        category: 'tactics',
+        match: '92%',
+        accent: '#38BDF8',
+        descRu: 'Если вам нравились ауры, «Зона» и эго Поколения Чудес — этот тайтл подарит похожий градус пафоса, психологических дуэлей и эффектных приёмов.',
+        descEn: 'If you loved the Zone, auras, and the ego of the Generation of Miracles, Blue Lock delivers the same high-stakes duels and special weapons.'
+      },
+      {
+        id: 'ahiru',
+        title: 'Ahiru no Sora (Команда мечты)',
+        year: 2019,
+        episodes: '50 эп.',
+        category: 'basketball',
+        match: '90%',
+        accent: '#38BDF8',
+        descRu: 'Более приземлённый, но эмоционально сильный сериал о невысоком защитнике Соре, который пытается возродить школьный баскетбольный клуб.',
+        descEn: 'A grounded, emotionally resonant basketball story about an undersized guard fighting to revive his high school club from rock bottom.'
+      },
+      {
+        id: 'aoashi',
+        title: 'Ao Ashi (Ао Аси)',
+        year: 2022,
+        episodes: '24 эп.',
+        category: 'tactics',
+        match: '89%',
+        accent: '#10B981',
+        descRu: 'Главный герой обладает «Орлиным глазом» — способностью видеть всю площадку целиком, прямо как Идзуки из Сэйрин или Акаси.',
+        descEn: 'The protagonist possesses spatial field vision reminiscent of Izuki’s Eagle Eye and Akashi’s court awareness, paired with deep tactical growth.'
+      },
+      {
+        id: 'runwind',
+        title: 'Run with the Wind (Почувствуй ветер)',
+        year: 2018,
+        episodes: '23 эп.',
+        category: 'team',
+        match: '87%',
+        accent: '#A855F7',
+        descRu: 'История десяти студентов, готовящихся к легендарному эстафетному марафону Хаконэ. Взрослая, вдохновляющая драма о доверии внутри команды.',
+        descEn: 'Ten college dorm mates train for the grueling Hakone Ekiden relay race. A mature, deeply inspiring story about trust and camaraderie.'
+      }
+    ];
+
+    // Стартовые обсуждения фанатов
+    const DEFAULT_POSTS = [
+      {
+        id: 'p1',
+        author: 'PhantomSixth_11',
+        topic: 'Kuroko no Basket',
+        text: 'Пересматривал финал Зимнего Кубка Сэйрин против Ракудзан. Момент, когда Куроко говорит Акаси «Кто ты такой?» и возвращает себе статус тени — до сих пор мурашки.',
+        likes: 14,
+        liked: false,
+        timestamp: '2 ч. назад',
+        replies: [
+          { id: 'r1', author: 'Aomine_Daiki', text: 'Согласен! И связка Кагами в Глубокой Зоне с пасами всей команды — лучший финал в споконах.' }
+        ]
+      },
+      {
+        id: 'p2',
+        author: 'Kise_Copycat',
+        topic: 'Generation of Miracles',
+        text: 'Честно говоря, Идеальное Копирование Рёты Кисэ в матче против Сэйрин — самая зрелищная способность во всём сериале. Жаль, что лимит всего 5 минут.',
+        likes: 9,
+        liked: false,
+        timestamp: '5 ч. назад',
+        replies: []
+      },
+      {
+        id: 'p3',
+        author: 'Midorima_LuckyItem',
+        topic: 'Anime Recommendation',
+        text: 'Тем, кто соскучился по духу «Баскетбола Куроко», очень советую Haikyuu!! и Ao Ashi. В Ao Ashi тактика и «вид сверху» на поле ощущаются как развитие идей Куроко.',
+        likes: 11,
+        liked: false,
+        timestamp: '1 д. назад',
+        replies: []
+      }
+    ];
+
+    // Ключи localStorage
+    const STORAGE_KEYS = {
+      LANG: 'buba_knb_lang',
+      ANIME: 'buba_knb_anime_list',
+      WATCHLIST: 'buba_knb_watchlist',
+      POSTS: 'buba_knb_posts'
+    };
+
+    // Состояние приложения
+    let state = {
+      lang: localStorage.getItem(STORAGE_KEYS.LANG) || 'ru',
+      animeList: JSON.parse(localStorage.getItem(STORAGE_KEYS.ANIME)) || DEFAULT_ANIME,
+      watchlist: JSON.parse(localStorage.getItem(STORAGE_KEYS.WATCHLIST)) || [],
+      posts: JSON.parse(localStorage.getItem(STORAGE_KEYS.POSTS)) || DEFAULT_POSTS,
+      animeFilter: 'all',
+      animeSearch: '',
+      topicFilter: 'all'
+    };
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEYS.LANG, state.lang);
+      localStorage.setItem(STORAGE_KEYS.ANIME, JSON.stringify(state.animeList));
+      localStorage.setItem(STORAGE_KEYS.WATCHLIST, JSON.stringify(state.watchlist));
+      localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(state.posts));
+    }
+
+    function t(key) {
+      return I18N[state.lang][key] || key;
+    }
+
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'pointer-events-auto px-4 py-3 rounded-xl bg-court-elevated border border-court-cyan/50 text-sm font-medium text-white shadow-lg transition-all duration-300 translate-y-2 opacity-0';
+      toast.textContent = message;
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-2', 'opacity-0');
+        setTimeout(() => toast.remove(), 300);
+      }, 2600);
+    }
+
+    // Обновление текстов интерфейса при смене языка
+    function applyTranslations() {
+      document.documentElement.lang = state.lang;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (I18N[state.lang][key]) {
+          el.textContent = I18N[state.lang][key];
+        }
+      });
+
+      document.getElementById('anime-search').placeholder = t('searchPlaceholder');
+      document.getElementById('author-name').placeholder = t('authorPlaceholder');
+      document.getElementById('opinion-text').placeholder = t('opinionPlaceholder');
+
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        const isActive = btn.dataset.lang === state.lang;
+        btn.className = isActive
+          ? 'lang-btn px-2.5 py-1 text-xs font-semibold rounded-md transition-colors bg-court-cyan text-court-bg'
+          : 'lang-btn px-2.5 py-1 text-xs font-semibold rounded-md transition-colors text-court-muted hover:text-white';
+      });
+    }
+
+    // Обновление счётчиков статистики
+    function updateStats() {
+      document.getElementById('stat-anime-count').textContent = state.animeList.length;
+      document.getElementById('stat-posts-count').textContent = state.posts.length;
+      document.getElementById('stat-saved-count').textContent = state.watchlist.length;
+      document.getElementById('watchlist-count').textContent = state.watchlist.length;
+      document.getElementById('mobile-watchlist-count').textContent = state.watchlist.length;
+    }
+
+    // Рендер карточек аниме
+    function renderAnime() {
+      const grid = document.getElementById('anime-grid');
+      const emptyBox = document.getElementById('anime-empty');
+      grid.innerHTML = '';
+
+      const filtered = state.animeList.filter(item => {
+        const matchesSearch = item.title.toLowerCase().includes(state.animeSearch.toLowerCase());
+        if (!matchesSearch) return false;
+        if (state.animeFilter === 'all') return true;
+        if (state.animeFilter === 'saved') return state.watchlist.includes(item.id);
+        return item.category === state.animeFilter;
+      });
+
+      if (filtered.length === 0) {
+        emptyBox.classList.remove('hidden');
+        return;
+      }
+      emptyBox.classList.add('hidden');
+
+      filtered.forEach(anime => {
+        const isSaved = state.watchlist.includes(anime.id);
+        const desc = state.lang === 'ru' ? anime.descRu : anime.descEn;
+        const catMap = {
+          basketball: t('filterBasketball'),
+          team: t('filterTeam'),
+          tactics: t('filterTactics')
+        };
+
+        const card = document.createElement('article');
+        card.className = 'rounded-2xl bg-court-surface border border-court-border hover:border-court-cyan/50 transition-all p-6 flex flex-col justify-between gap-5';
+
+        card.innerHTML = `
+          <div class="space-y-3.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="px-2.5 py-1 rounded-md text-[11px] font-semibold uppercase tracking-wider bg-court-bg border border-court-border text-court-cyan">
+                ${catMap[anime.category] || anime.category}
+              </span>
+              <span class="text-xs font-semibold text-court-orange">
+                ${anime.match} match
+              </span>
+            </div>
+
+            <div>
+              <h3 class="font-display text-xl uppercase text-white tracking-wide">${escapeHTML(anime.title)}</h3>
+              <p class="text-xs text-court-muted mt-1">${anime.year} • ${escapeHTML(anime.episodes)}</p>
+            </div>
+
+            <p class="text-sm text-slate-300 leading-relaxed line-clamp-3">
+              ${escapeHTML(desc)}
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2.5 pt-2 border-t border-court-border">
+            <button type="button" data-action="details" data-id="${anime.id}" class="flex-1 py-2.5 px-3 rounded-xl bg-court-elevated hover:bg-court-border text-xs font-semibold text-white transition-colors">
+              ${t('btnDetails')}
+            </button>
+            <button type="button" data-action="bookmark" data-id="${anime.id}" class="py-2.5 px-3.5 rounded-xl border text-xs font-semibold transition-colors flex items-center gap-1.5 ${
+              isSaved
+                ? 'bg-court-cyan/15 border-court-cyan text-court-cyan'
+                : 'bg-court-bg border-court-border text-court-muted hover:text-white'
+            }">
+              <svg class="w-4 h-4" fill="${isSaved ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+              </svg>
+              <span>${isSaved ? t('btnSaved') : t('btnSave')}</span>
+            </button>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    // Рендер обсуждений
+    function renderDiscussions() {
+      const list = document.getElementById('discussions-list');
+      const emptyBox = document.getElementById('discussions-empty');
+      list.innerHTML = '';
+
+      const filtered = state.posts.filter(post => {
+        if (state.topicFilter === 'all') return true;
+        return post.topic === state.topicFilter;
+      });
+
+      if (filtered.length === 0) {
+        emptyBox.classList.remove('hidden');
+        return;
+      }
+      emptyBox.classList.add('hidden');
+
+      filtered.forEach(post => {
+        const card = document.createElement('article');
+        card.className = 'rounded-2xl bg-court-surface border border-court-border p-5 sm:p-6 space-y-4';
+
+        const repliesHTML = (post.replies || []).map(rep => `
+          <div class="pl-4 border-l-2 border-court-border py-1 space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-semibold text-court-cyan">${escapeHTML(rep.author)}</span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">${escapeHTML(rep.text)}</p>
+          </div>
+        `).join('');
+
+        card.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-court-elevated border border-court-border flex items-center justify-center font-display text-sm text-court-cyan uppercase">
+                ${escapeHTML(post.author.slice(0, 2))}
+              </div>
+              <div>
+                <div class="text-sm font-semibold text-white">${escapeHTML(post.author)}</div>
+                <div class="text-[11px] text-court-muted">${escapeHTML(post.timestamp)}</div>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-md bg-court-bg border border-court-border text-[11px] font-medium text-court-orange">
+              ${escapeHTML(post.topic)}
+            </span>
+          </div>
+
+          <p class="text-sm sm:text-base text-slate-200 leading-relaxed whitespace-pre-line">${escapeHTML(post.text)}</p>
+
+          <div class="flex items-center justify-between pt-2 border-t border-court-border">
+            <div class="flex items-center gap-3">
+              <button type="button" data-post-action="like" data-id="${post.id}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+                post.liked
+                  ? 'bg-court-cyan/15 border-court-cyan text-court-cyan'
+                  : 'bg-court-bg border-court-border text-court-muted hover:text-white'
+              }">
+                <svg class="w-4 h-4" fill="${post.liked ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                </svg>
+                <span>${post.likes}</span>
+              </button>
+
+              <button type="button" data-post-action="toggle-reply" data-id="${post.id}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-court-bg border border-court-border text-court-muted hover:text-white transition-colors">
+                <span>${t('btnReply')} (${(post.replies || []).length})</span>
+              </button>
+            </div>
+          </div>
+
+          ${repliesHTML ? `<div class="space-y-2.5 pt-1">${repliesHTML}</div>` : ''}
+
+          <div id="reply-box-${post.id}" class="hidden pt-2">
+            <div class="flex gap-2">
+              <input type="text" id="reply-input-${post.id}" maxlength="240" class="flex-1 bg-court-bg border border-court-border rounded-xl px-3 py-2 text-xs sm:text-sm text-white placeholder-court-muted focus:outline-none focus:border-court-cyan" placeholder="${t('replyPlaceholder')}" />
+              <button type="button" data-post-action="send-reply" data-id="${post.id}" class="px-4 py-2 rounded-xl bg-court-cyan text-court-bg text-xs font-semibold hover:bg-court-cyanHover transition-colors">
+                ${t('btnSendReply')}
+              </button>
+            </div>
+          </div>
+        `;
+
+        list.appendChild(card);
+      });
+    }
+
+    // Безопасное экранирование HTML
+    function escapeHTML(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Открыть модалку с деталями аниме
+    function openAnimeModal(animeId) {
+      const anime = state.animeList.find(a => a.id === animeId);
+      if (!anime) return;
+
+      const isSaved = state.watchlist.includes(anime.id);
+      const desc = state.lang === 'ru' ? anime.descRu : anime.descEn;
+      const modal = document.getElementById('anime-modal');
+      const content = document.getElementById('anime-modal-content');
+
+      content.innerHTML = `
+        <div class="space-y-1 pr-8">
+          <span class="text-xs font-semibold uppercase tracking-wider text-court-cyan">${anime.year}</span>
+          <h3 class="font-display text-2xl uppercase text-white">${escapeHTML(anime.title)}</h3>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-3 rounded-xl bg-court-bg border border-court-border">
+            <div class="text-[11px] text-court-muted">${t('modalEpisodes')}</div>
+            <div class="text-sm font-semibold text-white mt-0.5">${escapeHTML(anime.episodes)}</div>
+          </div>
+          <div class="p-3 rounded-xl bg-court-bg border border-court-border">
+            <div class="text-[11px] text-court-muted">${t('modalMatchScore')}</div>
+            <div class="text-sm font-semibold text-court-orange mt-0.5">${anime.match}</div>
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <h4 class="text-xs font-semibold uppercase tracking-wider text-court-muted">${t('modalWhyTitle')}</h4>
+          <p class="text-sm text-slate-200 leading-relaxed">${escapeHTML(desc)}</p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-2.5 pt-2">
+          <button type="button" id="modal-discuss-trigger" class="flex-1 py-3 px-4 rounded-xl bg-court-cyan text-court-bg text-xs font-semibold hover:bg-court-cyanHover transition-colors">
+            ${t('modalDiscussBtn')}
+          </button>
+          <button type="button" id="modal-bookmark-trigger" class="py-3 px-4 rounded-xl bg-court-elevated border border-court-border text-xs font-semibold text-white hover:border-court-cyan transition-colors">
+            ${isSaved ? t('btnSaved') : t('btnSave')}
+          </button>
+        </div>
+      `;
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      document.getElementById('modal-bookmark-trigger').onclick = () => {
+        toggleWatchlist(anime.id);
+        openAnimeModal(anime.id);
+      };
+
+      document.getElementById('modal-discuss-trigger').onclick = () => {
+        closeModal('anime-modal');
+        const topicSelect = document.getElementById('topic-select');
+        const opinionInput = document.getElementById('opinion-text');
+        topicSelect.value = 'Anime Recommendation';
+        opinionInput.value = `${anime.title}: `;
+        document.getElementById('discussions-section').scrollIntoView({ behavior: 'smooth' });
+        setTimeout(() => opinionInput.focus(), 400);
+      };
+    }
+
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function toggleWatchlist(animeId) {
+      const idx = state.watchlist.indexOf(animeId);
+      if (idx === -1) {
+        state.watchlist.push(animeId);
+        showToast(t('toastSaved'));
+      } else {
+        state.watchlist.splice(idx, 1);
+        showToast(t('toastRemoved'));
+      }
+      saveState();
+      updateStats();
+      renderAnime();
+    }
+
+    // Инициализация событий
+    document.addEventListener('DOMContentLoaded', () => {
+      applyTranslations();
+      updateStats();
+      renderAnime();
+      renderDiscussions();
+
+      // Переключение языка
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.lang = btn.dataset.lang;
+          saveState();
+          applyTranslations();
+          renderAnime();
+          renderDiscussions();
+        });
+      });
+
+      // Мобильное меню
+      const mobileBtn = document.getElementById('mobile-menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+      mobileBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+      });
+      document.querySelectorAll('.mobile-link').forEach(link => {
+        link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+      });
+
+      // Быстрый переход к "Мой список" из шапки
+      const goToWatchlist = () => {
+        mobileMenu.classList.add('hidden');
+        state.animeFilter = 'saved';
+        updateFilterButtons();
+        renderAnime();
+        document.getElementById('anime-section').scrollIntoView({ behavior: 'smooth' });
+      };
+      document.getElementById('watchlist-nav-btn').addEventListener('click', goToWatchlist);
+      document.getElementById('mobile-watchlist-btn').addEventListener('click', goToWatchlist);
+
+      // Фильтры аниме
+      function updateFilterButtons() {
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+          const active = btn.dataset.filter === state.animeFilter;
+          btn.className = active
+            ? 'filter-btn px-3.5 py-2 rounded-lg text-xs font-semibold bg-court-cyan text-court-bg transition-colors'
+            : 'filter-btn px-3.5 py-2 rounded-lg text-xs font-semibold bg-court-bg text-court-muted hover:text-white border border-court-border transition-colors';
+        });
+      }
+
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.animeFilter = btn.dataset.filter;
+          updateFilterButtons();
+          renderAnime();
+        });
+      });
+
+      document.getElementById('anime-search').addEventListener('input', e => {
+        state.animeSearch = e.target.value.trim();
+        renderAnime();
+      });
+
+      document.getElementById('reset-anime-filters').addEventListener('click', () => {
+        state.animeFilter = 'all';
+        state.animeSearch = '';
+        document.getElementById('anime-search').value = '';
+        updateFilterButtons();
+        renderAnime();
+      });
+
+      // Клики по карточкам аниме
+      document.getElementById('anime-grid').addEventListener('click', e => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const id = btn.dataset.id;
+        if (btn.dataset.action === 'bookmark') {
+          toggleWatchlist(id);
+        } else if (btn.dataset.action === 'details') {
+          openAnimeModal(id);
+        }
+      });
+
+      // Модальные окна
+      document.getElementById('close-anime-modal').addEventListener('click', () => closeModal('anime-modal'));
+      document.getElementById('anime-modal').addEventListener('click', e => {
+        if (e.target.id === 'anime-modal') closeModal('anime-modal');
+      });
+
+      document.getElementById('toggle-suggest-modal').addEventListener('click', () => {
+        const m = document.getElementById('suggest-modal');
+        m.classList.remove('hidden');
+        m.classList.add('flex');
+      });
+      document.getElementById('close-suggest-modal').addEventListener('click', () => closeModal('suggest-modal'));
+      document.getElementById('suggest-modal').addEventListener('click', e => {
+        if (e.target.id === 'suggest-modal') closeModal('suggest-modal');
+      });
+
+      // Добавление нового аниме пользователем
+      document.getElementById('suggest-form').addEventListener('submit', e => {
+        e.preventDefault();
+        const title = document.getElementById('suggest-title').value.trim();
+        const year = parseInt(document.getElementById('suggest-year').value, 10) || 2024;
+        const category = document.getElementById('suggest-category').value;
+        const why = document.getElementById('suggest-why').value.trim();
+        const errEl = document.getElementById('suggest-error');
+
+        if (title.length < 2 || why.length < 5) {
+          errEl.textContent = t('errEmptySuggest');
+          return;
+        }
+        errEl.textContent = '';
+
+        const newAnime = {
+          id: 'custom_' + Date.now(),
+          title,
+          year,
+          episodes: 'Выбор фанатов',
+          category,
+          match: '91%',
+          accent: '#38BDF8',
+          descRu: why,
+          descEn: why
+        };
+
+        state.animeList.unshift(newAnime);
+        saveState();
+        updateStats();
+        renderAnime();
+        document.getElementById('suggest-form').reset();
+        closeModal('suggest-modal');
+        showToast(t('toastAnimeAdded'));
+      });
+
+      // Счётчик символов в форме мнения
+      const opinionTextarea = document.getElementById('opinion-text');
+      const charCounter = document.getElementById('char-counter');
+      opinionTextarea.addEventListener('input', () => {
+        charCounter.textContent = `${opinionTextarea.value.length} / 600`;
+      });
+
+      // Публикация нового мнения
+      document.getElementById('opinion-form').addEventListener('submit', e => {
+        e.preventDefault();
+        const authorRaw = document.getElementById('author-name').value.trim();
+        const topic = document.getElementById('topic-select').value;
+        const text = opinionTextarea.value.trim();
+        const errorEl = document.getElementById('form-error');
+
+        if (text.length < 5) {
+          errorEl.textContent = t('errEmptyOpinion');
+          return;
+        }
+        errorEl.textContent = '';
+
+        const newPost = {
+          id: 'post_' + Date.now(),
+          author: authorRaw || (state.lang === 'ru' ? 'Игрок Сэйрин' : 'Seirin Player'),
+          topic,
+          text,
+          likes: 1,
+          liked: true,
+          timestamp: state.lang === 'ru' ? 'Только что' : 'Just now',
+          replies: []
+        };
+
+        state.posts.unshift(newPost);
+        saveState();
+        updateStats();
+        renderDiscussions();
+
+        opinionTextarea.value = '';
+        charCounter.textContent = '0 / 600';
+        showToast(t('toastPosted'));
+      });
+
+      // Фильтрация тем обсуждения
+      document.querySelectorAll('.topic-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.topicFilter = btn.dataset.topic;
+          document.querySelectorAll('.topic-btn').forEach(b => {
+            const active = b.dataset.topic === state.topicFilter;
+            b.className = active
+              ? 'topic-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-court-cyan text-court-bg'
+              : 'topic-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-court-bg text-court-muted hover:text-white border border-court-border';
+          });
+          renderDiscussions();
+        });
+      });
+
+      // Лайки и ответы в обсуждениях
+      document.getElementById('discussions-list').addEventListener('click', e => {
+        const btn = e.target.closest('button[data-post-action]');
+        if (!btn) return;
+        const action = btn.dataset.postAction;
+        const postId = btn.dataset.id;
+        const post = state.posts.find(p => p.id === postId);
+        if (!post) return;
+
+        if (action === 'like') {
+          post.liked = !post.liked;
+          post.likes += post.liked ? 1 : -1;
+          saveState();
+          renderDiscussions();
+        } else if (action === 'toggle-reply') {
+          const box = document.getElementById(`reply-box-${postId}`);
+          box.classList.toggle('hidden');
+          if (!box.classList.contains('hidden')) {
+            document.getElementById(`reply-input-${postId}`).focus();
+          }
+        } else if (action === 'send-reply') {
+          const input = document.getElementById(`reply-input-${postId}`);
+          const replyText = input.value.trim();
+          if (!replyText) return;
+          const nick = document.getElementById('author-name').value.trim() || (state.lang === 'ru' ? 'Фанат Буба' : 'Buba Fan');
+          post.replies = post.replies || [];
+          post.replies.push({
+            id: 'rep_' + Date.now(),
+            author: nick,
+            text: replyText
+          });
+          saveState();
+          renderDiscussions();
+        }
+      });
+
+      // Сброс демо-данных
+      document.getElementById('reset-demo-btn').addEventListener('click', () => {
+        localStorage.removeItem(STORAGE_KEYS.ANIME);
+        localStorage.removeItem(STORAGE_KEYS.WATCHLIST);
+        localStorage.removeItem(STORAGE_KEYS.POSTS);
+        state.animeList = JSON.parse(JSON.stringify(DEFAULT_ANIME));
+        state.watchlist = [];
+        state.posts = JSON.parse(JSON.stringify(DEFAULT_POSTS));
+        updateStats();
+        renderAnime();
+        renderDiscussions();
+        showToast(t('toastReset'));
+      });
+    });
+  </script>
+</body>
+</html>
